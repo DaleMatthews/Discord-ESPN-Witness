@@ -2,6 +2,7 @@ import requests
 import asyncio
 from bs4 import BeautifulSoup
 
+# A Witness reports on a game from a given url to a text channel on Discord
 class Witness:
     def __init__(self, client, url, channel):
         self.client = client
