@@ -2,40 +2,32 @@ import logging
 import asyncio
 import configparser
 import discord
-import requests
-from bs4 import BeautifulSoup
 from witness import Witness
+from espn_scraper import Scraper
 
 logging.basicConfig(level=logging.INFO)
 
 client = discord.Client()
+scraper = Scraper()
 
 @client.event
 async def on_message(message):
     if message.content.startswith('$list'):
-        response = requests.get('http://www.espn.com/nhl/scoreboard')
-        content = response.content
-        parser = BeautifulSoup(content, 'html.parser')
-        live_games_content = parser.select('.mod-scorebox-in-progress')
-
-        live_games = []
-        for game in live_games_content:
-            game_table = game.select('table.game-header-table')[0]
-            game_title = game_table['summary'].replace(' Scores', '')
-            game_link = game.select('.expand-gameLinks a')[0]['href']
-            game_id = game_link.replace('gameId=', '|').split('|')[1]
-            live_games.append({'title': game_title, 'id': game_id})
-
+        live_games = scraper.get_live_games()
         msg = ''
         for i in range(len(live_games)):
             msg += str(i+1) + ': ' + live_games[i]['title'] + '\n'
         await client.send_message(message.channel, msg)
 
     elif message.content.startswith('$start'):
-        url = message.content.replace('$start ', '')
-        await client.send_message(message.channel, 'Starting game from ' + url)
-        game = Witness(client, url, message.channel)
-        await game.start()
+        try:
+            game_num = int(message.content.replace('$start ', ''))
+            await client.send_message(message.channel, 'Starting game from ' + str(game_num))
+            #game = Witness(client, url, message.channel)
+            #await game.start()
+        except Exception as e:
+            print(str(e))
+            await client.send_message(message.channel, 'Use the following syntax:\n$list\n$start <game_number>')
 
     '''elif message.content.startswith('$score'):
         scoreboard = get_scoreboard()
