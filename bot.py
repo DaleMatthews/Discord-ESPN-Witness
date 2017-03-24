@@ -22,12 +22,18 @@ async def on_message(message):
     elif message.content.startswith('$start'):
         try:
             game_num = int(message.content.replace('$start ', ''))
-            await client.send_message(message.channel, 'Starting game from ' + str(game_num))
-            #game = Witness(client, url, message.channel)
-            #await game.start()
+            game = scraper.get_live_games()[game_num-1]
+            game_id = game['id']
+
+            msg = 'Starting game: ' + game['title']
+            await client.send_message(message.channel, msg)
+
+            game = Witness(scraper, game_id, client, message.channel)
+            await game.start()
+
         except Exception as e:
             print(str(e))
-            await client.send_message(message.channel, 'Use the following syntax:\n$list\n$start <game_number>')
+            await client.send_message(message.channel, 'Error. Use the following syntax:\n$list\n$start <game_number>')
 
     '''elif message.content.startswith('$score'):
         scoreboard = get_scoreboard()
