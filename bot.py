@@ -1,6 +1,6 @@
 import logging
 import asyncio
-import configparser
+import json
 import discord
 from witness import Witness
 from espn_scraper import Scraper
@@ -9,15 +9,20 @@ logging.basicConfig(level=logging.INFO)
 
 client = discord.Client()
 scraper = Scraper()
+config = json.load(open('config.json'))
 
 @client.event
 async def on_message(message):
     if message.content.startswith('$list'):
         live_games = scraper.get_live_games()
-        msg = ''
-        for i in range(len(live_games)):
-            msg += str(i+1) + ': ' + live_games[i]['title'] + '\n'
-        await client.send_message(message.channel, msg)
+
+        if len(live_games) > 0:
+            msg = ''
+            for i in range(len(live_games)):
+                msg += str(i+1) + ': ' + live_games[i]['title'] + '\n'
+            await client.send_message(message.channel, msg)
+        else:
+            await client.send_message(message.channel, 'No games currently airing')
 
     elif message.content.startswith('$start'):
         try:
@@ -28,7 +33,7 @@ async def on_message(message):
             msg = 'Starting game: ' + game['title']
             await client.send_message(message.channel, msg)
 
-            game = Witness(scraper, game_id, client, message.channel)
+            game = Witness(config, scraper, game_id, client, message.channel)
             await game.start()
 
         except Exception as e:
@@ -42,6 +47,4 @@ async def on_message(message):
             msg += '\n' + scoreboard[0][1] + ': ' + scoreboard[1][1]
             await client.send_message(message.channel, msg)'''
 
-config = configparser.RawConfigParser()
-config.read('bot.cfg')
-client.run(config.get('discord', 'token'))
+client.run(config['discord']['token'])

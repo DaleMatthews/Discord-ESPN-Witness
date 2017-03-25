@@ -1,0 +1,9 @@
+{
+    "discord": {
+        "token": "bot.token.here"
+    },
+
+    "nhl": {
+        "events": ["goal scored", "penalty", "end of", "start of"]
+    }
+}

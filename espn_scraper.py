@@ -53,7 +53,8 @@ class Scraper:
             for i in range(0, len(game_events_content)):
                 info = game_events_content[i].select('td')
                 # Three columns: time, team, and detail
-                game_events.append([info[0].text, info[1].text, info[2].text])
+                if len(info) == 3:
+                    game_events.append([info[0].text, info[1].text, info[2].text])
             return game_events
 
 

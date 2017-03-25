@@ -2,11 +2,12 @@ import asyncio
 
 # A Witness reports on a game from a given game_id to a text channel on Discord
 class Witness:
-    def __init__(self, scraper, game_id, client, channel):
+    def __init__(self, config, scraper, game_id, client, channel):
         self.scraper = scraper
         self.game_id = game_id
         self.client = client
         self.channel = channel
+        self.events = config['nhl']['events']
 
     # Builds message from event e
     def construct_message(self, e):
@@ -27,9 +28,8 @@ class Witness:
 
     # Returns true if string s is a desired event
     def desired_event(self, s):
-        desired = ['goal scored', 'penalty', 'end of', 'start of']
-        for d in desired:
-            if d in s.lower():
+        for e in self.events:
+            if e in s.lower():
                 return True
         return False
 
